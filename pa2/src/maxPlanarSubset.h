@@ -16,12 +16,13 @@ class MPS{
 public:
     bool parse(const char* fname);
     void assign();
-    void traverse(treeNode* n, fstream& fs);
+    void assign();
+    void traverse(int n1, int n2, fstream& fs);
     void output(const char* fname);
 
 private:
-    int _npoint;
-    int** _table;
-    treeNode** _trace;
-    unordered_map<int, int> _coord;
+    int  _npoint;
+    vector< vector<int> > _table;
+    vector< vector<int> > _case; // [i,j]  == [i,k-1] + [k+1,j]
+    vector<int> _coord;
 };
