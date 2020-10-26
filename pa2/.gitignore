@@ -1,0 +1,6 @@
+.in
+.out
+public_cases/
+private_cases/
+output
+*.o

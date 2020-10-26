@@ -15,14 +15,15 @@ struct treeNode{
 class MPS{
 public:
     bool parse(const char* fname);
+    void botUp();
     void assign();
-    void assign();
+    int topDown(int i, int j);
     void traverse(int n1, int n2, fstream& fs);
     void output(const char* fname);
 
 private:
     int  _npoint;
     vector< vector<int> > _table;
-    vector< vector<int> > _case; // [i,j]  == [i,k-1] + [k+1,j]
+    vector< vector<bool> > _case; // [i,j]  == [i,k-1] + [k+1,j]
     vector<int> _coord;
 };
