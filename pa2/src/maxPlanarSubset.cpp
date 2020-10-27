@@ -16,12 +16,14 @@ bool MPS::parse(const char* fname){
     // init table
     getline(fs, line);
     _npoint = stoi(line);
-    _table.reserve(_npoint);
-    _case.reserve(_npoint);
     _coord.resize(_npoint, 0);
+    _table = new int *[_npoint];
+    _case  = new bool *[_npoint];
     for(int i = 0; i < _npoint; ++i){
-        _table.push_back(vector<int>(_npoint, -1));
-        _case.push_back(vector<bool> (_npoint, false));
+        _table[i] = new int [_npoint];
+        _case[i]  = new bool [_npoint];
+        // _table.push_back(vector<int>(_npoint, -1));
+        // _case.push_back(vector<bool> (_npoint, false));
     }
     
     // parse chords
@@ -33,23 +35,14 @@ bool MPS::parse(const char* fname){
         n2 = stoi(line.substr(pos+1));
         _coord[n1] = n2;
         _coord[n2] = n1;
-        if(n2 - n1 == 1){
-            _table[n1][n2] = 1;
-            _case[n1][n2] = true;
-        }
-
-        if(n1 - n2 == 1){
-            _table[n2][n1] = 1;
-            _case[n2][n1] = true;
-        }
     }
     return true;
 }
 
 
 void MPS::assign(){
-    // botUp();
-    topDown(0, _npoint-1);
+    botUp();
+    // topDown(_npoint-1, 0);
 }
 
 void MPS::botUp(){
@@ -58,44 +51,46 @@ void MPS::botUp(){
         _table[i][i] = 0;
     }
     
-    for(int j = 0; j < _npoint; ++j){
-        k = _coord[j];
+    for(int i = 0; i < _npoint; ++i){
+        k = _coord[i];
 
-        for(int i = 0; i < j; ++i){
-            _table[i][j] = _table[i][j-1];
+        for(int j = 0; j < i; ++j){
+            _table[i][j] = _table[i-1][j];
 
-            if(k >= i && k < j){
+            // if (k == 0){
+            //     _table[i][j] = _table[i-1][1] +1 ;
+            //     _case[i][j] = true;
+            // }
+            if(k >= j && k < i){
                 idx = max(0, k-1);
                 // split case
-                sum = _table[i][idx] + _table[k+1][j-1] + 1;
-                if(sum > _table[i][j-1]){
+                sum = _table[i-1][k+1] + _table[idx][j] + 1;
+                if(sum > _table[i-1][j]){
                     _table[i][j] = sum;
-                    _case[i][j] = k;
+                    _case[i][j] = true;
                 }
             }
         }
     }
 }
 
-
+// i > j
 int MPS::topDown(int i, int j){
-    // cout << i << " " << j << endl;
-    if(i >= j)
+    if(j >= i)
         return 0;
 
     if(_table[i][j] != -1)
         return _table[i][j];
 
-    int sum, prev, idx, k = _coord[j];
+    int sum, prev, idx, k = _coord[i];
 
-    if( k == i){
-        _table[i][j] = topDown(i+1, j-1) + 1;
+    if( k == j){
+        _table[i][j] = topDown(i-1, j+1) + 1;
         _case[i][j] = true;
     }
-    else if(k > i && k < j){ // [i, j-1]
-        idx = max(0, k-1);
-        sum = topDown(i, idx) + topDown(k+1, j-1) + 1;
-        prev = topDown(i, j-1);
+    else if(k > j && k < i){ // [j-1, i]
+        sum = topDown(i-1, k+1) + topDown(k-1, j) + 1;
+        prev = topDown(i-1, j);
 
         if(sum > prev){
             _table[i][j] = sum;
@@ -105,26 +100,33 @@ int MPS::topDown(int i, int j){
         }
     }
     else{
-        _table[i][j] = topDown(i, j-1);
+        _table[i][j] = topDown(i-1, j);
     }
     return _table[i][j];
 }
 
+// [n2 < n1]
 void MPS::traverse(int n1, int n2, fstream& fs){
-    if(n1 >= n2)
+    if(n1 <= n2)
         return;
     if(_case[n1][n2]){
-        int k = _coord[n2];
-        traverse(n1, k-1, fs);
-        fs << k << ' ' << n2 << '\n';  
-        traverse(k+1, n2-1, fs);
+        int k = _coord[n1];
+        traverse(k-1, n2, fs);
+        fs << k << ' ' << n1 << '\n';  
+        traverse(n1-1, k+1, fs);
     }else{
-        traverse(n1, n2-1, fs);
+        traverse(n1-1, n2, fs);
     }
 }
 
 void MPS::output(const char* fname){
     fstream fs(fname, ios::out);
-    fs << _table[0][_npoint-1] << '\n';
-    traverse(0, _npoint-1, fs);
+    fs << _table[_npoint-1][0] << '\n';
+    traverse(_npoint-1, 0, fs);
+	for (int i = 0; i < _npoint; ++i) {
+		delete[] _table[i]; 
+		delete[] _case[i];
+	}	
+    delete[] _table;
+	delete[] _case;
 }

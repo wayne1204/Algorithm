@@ -23,7 +23,10 @@ public:
 
 private:
     int  _npoint;
-    vector< vector<int> > _table;
-    vector< vector<bool> > _case; // [i,j]  == [i,k-1] + [k+1,j]
+    // vector< vector<int> > _table;
+    // vector< vector<bool> > _case; // [i,j]  == [i,k-1] + [k+1,j]
+    int** _table;
+    bool** _case;
+
     vector<int> _coord;
 };
