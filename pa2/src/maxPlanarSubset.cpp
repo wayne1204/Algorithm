@@ -17,13 +17,15 @@ bool MPS::parse(const char* fname){
     getline(fs, line);
     _npoint = stoi(line);
     _coord.resize(_npoint, 0);
-    _table = new int *[_npoint];
-    _case  = new bool *[_npoint];
+    // _table = new int *[_npoint];
+    // _case  = new bool *[_npoint];
+
     for(int i = 0; i < _npoint; ++i){
-        _table[i] = new int [_npoint];
-        _case[i]  = new bool [_npoint];
-        // _table.push_back(vector<int>(_npoint, -1));
-        // _case.push_back(vector<bool> (_npoint, false));
+        // _table[i] = new int [_npoint];
+        // _case[i]  = new bool [_npoint];
+        _table.push_back(vector<int>(_npoint, 0));
+        _table.push_back(vector<int>(_npoint, -1)); // for top-down
+        _case.push_back(vector<bool> (_npoint, false));
     }
     
     // parse chords
@@ -123,10 +125,10 @@ void MPS::output(const char* fname){
     fstream fs(fname, ios::out);
     fs << _table[_npoint-1][0] << '\n';
     traverse(_npoint-1, 0, fs);
-	for (int i = 0; i < _npoint; ++i) {
-		delete[] _table[i]; 
-		delete[] _case[i];
-	}	
-    delete[] _table;
-	delete[] _case;
+	// for (int i = 0; i < _npoint; ++i) {
+	// 	delete[] _table[i]; 
+	// 	delete[] _case[i];
+	// }	
+    // delete[] _table;
+	// delete[] _case;
 }

@@ -4,3 +4,8 @@ public_cases/
 private_cases/
 output
 *.o
+*.out
+*.bot
+settings.json
+mps
+MPS/*
